@@ -6,6 +6,8 @@
     }
   },
   "require": {
-    "electrolinux/phpquery": "^0.9.6"
+    "electrolinux/phpquery": "^0.9.6",
+    "paquettg/php-html-parser": "^3.1",
+    "phpoffice/phpspreadsheet": "^1.17"
   }
 }

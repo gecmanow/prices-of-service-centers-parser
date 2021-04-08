@@ -8,63 +8,53 @@ require_once LIBS . '/functions.php';
 header("Content-type: text/html; charset=utf-8");
 
 $url = 'https://remont.killprice24.ru';
-$content = connect($url);
+$file = WWW . '/pricelist.xlsx';
+$data = parse($url);
 
-/*
- * ТЗ - получить данные вида девайс/модель/услуга-цена в виде массива, а из массива вставить их в теблицу Excel
- * массив вида [x, y, z], где x - модели, y - услуги, x*y - цены, z - девайсы
- * а точнее
- * [0, y+1, z] - услуги, [x+1, 0, z] - модели, [x+1, y+1, z] - цены, [0, 0, z] - девайсы
- *
- * получаем html из url
- *
- * получаем искомый элемент из html
- * повторяем до тех пор, пока не получим все элементы
- *
- * формиформируем массив из полученных элементов
- *
- *
- * вставляем найденный элемент в таблицу
- *
- * */
+$result = writeInExcel($data, $file);
 
-
-for ($z = 0; $z <= $deviceCount; $z++) {
-    $devices = '.product_heading';
-    $devicelist = parse($content, $devices, 0, 0, $z);
-    $deviceCount = count($devicelist);
-
-    for ($x = 0; $x <= $modelCount; $x++) {
-        $models = '.block960 .poduct1024_item .model_list .model_parent:eq(' . $x . ') .model_item';
-        $modellist = parse($content, $models, $x+1, 0, $z);
-        $modelCount = count($modellist);
-        for ($y = 0; $y <= $count; $y++) {
-            $names = '.block960 .poduct1024_item .model_list .model_parent:eq(' . $y . ') .model_serv .serv_item .head_price .si_head';
-            $namelist = parse($content, $names, $x, $y+1, $z);
-
-            $prices = '.block960 .poduct1024_item .model_list .model_parent:eq(' . $y . ') .model_serv .serv_item .head_price .price1024';
-            $pricelist = parse($content, $prices, $x+1, $y+1, $z);
-
-            $count = count($namelist);
+/*foreach ($data as $device => $deviceName) {
+    echo $deviceName['productName'];
+    foreach($deviceName['models'] as $model => $modelName) {
+        echo $modelName['modelName'];
+        foreach($modelName['services'] as $service => $serviceName) {
+            echo $serviceName['serviceName'];
+            echo $serviceName['servicePrice'];
         }
     }
-}
+}*/
 
 
 
-/*$devices = '.product_heading';
-$devicelist = parse($content, $devices);
 
-$prices = '.block960 .poduct1024_item .model_list .model_parent:eq(0) .model_serv .serv_item .head_price .price1024';
-$pricelist = parse($content, $prices);
 
-$names = '.block960 .poduct1024_item .model_list .model_parent:eq(0) .model_serv .serv_item .head_price .si_head';
-$namelist = parse($content, $names);
+/*$products = parse($url);
+debug($products);*/
 
-$models = '.block960 .poduct1024_item .model_list .model_parent:eq(0) .model_item';
-$modellist = parse($content, $models);
 
-debug($devicelist);
-debug($namelist);
-debug($pricelist);
-debug($modellist);*/
+/*
+ * ф принимает массив
+ * есть переменная $a, изначально равная 0
+ * проходимся циклом по массиву
+ * если находим значение равное $a - записываем его первым элементом в массив $b[]
+ * иначе увеличиваем $a на 1
+ * если следующее значение равно $b+1 то записываем его следующим элементом в массив $b[]
+ * иначе начинаем созавать новый выходной массив и возвращаемся на шаг 2
+ * */
+/* 90235468 */
+/*function hui($array) {
+    $a = 0;
+    $result = [];
+    foreach($array as $b) {
+        if($b == $a) {
+            array_push($result);
+        } else {
+            $a++; //1
+            for($c = $a; $c <= $b; $c++) {
+                if($c == $b) {
+                    array_push($result);
+                }
+            }
+        }
+    }
+}*/
