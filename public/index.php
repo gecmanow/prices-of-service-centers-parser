@@ -2,16 +2,18 @@
 
 error_reporting(-1);
 
+
 require_once dirname(__DIR__) . '/config/init.php';
 require_once LIBS . '/functions.php';
 
 header("Content-type: text/html; charset=utf-8");
 
 $url = 'https://remont.killprice24.ru';
-$file = WWW . '/pricelist.xlsx';
+$filename = '/pricelist.xlsx';
+$file = WWW . $filename;
 $data = parse($url);
 
-$result = writeInExcel($data, $file);
+$result = writeInExcel($data, $file, $filename);
 
 /*foreach ($data as $device => $deviceName) {
     echo $deviceName['productName'];
