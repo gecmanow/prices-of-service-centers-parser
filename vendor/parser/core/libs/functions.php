@@ -1,6 +1,5 @@
 <?php
 
-
 use PHPHtmlParser\Dom;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -26,7 +25,7 @@ function parse($url) {
         $header = $headerWrapper->firstChild();
 
         $productItem = [
-            'productName' => $header->text,
+            'productName' => str_replace('Ремонт ', '', $header->text),
             'models' => []
         ];
         // Пробежимся по моделям
@@ -38,7 +37,7 @@ function parse($url) {
             // В него напихаем услуги. 
             // Услуга это объект, состоящий из названия и цены
             $modelItem = [
-                'modelName' => $modelDOMName->text,
+                'modelName' => str_replace('Ремонт ', '', $modelDOMName->text),
                 'services' => []
             ];
             // Пройдёмся же по услугам
@@ -49,7 +48,7 @@ function parse($url) {
                     'servicePrice' => '',
                 ];
                 $uslugaItem['serviceName'] = $usluga->find('.si_head')->text;
-                $uslugaItem['servicePrice'] = $usluga->find('.price1024')->text;
+                $uslugaItem['servicePrice'] = trim($usluga->find('.price1024')->text);
                 array_push(
                     $modelItem['services'],
                     $uslugaItem
@@ -71,7 +70,42 @@ function parse($url) {
 function writeInExcel($data, $file, $filename) {
 
     if (file_exists($file)) {
-        IOFactory::load($file);
+
+        $spreadsheet = IOFactory::load($file);
+        $sheet = $spreadsheet->getActiveSheet();
+        $xPN = 'A';
+        $yPN = 1;
+        $xMN = 'B';
+        $yMN = 1;
+        $xSN = 'C';
+        $ySN = 1;
+        $xSP = 'D';
+        $ySP = 1;
+        foreach ($data as $products => $product) {
+            $sheet->setCellValue($xPN . $yPN, $product['productName']);
+            foreach($product['models'] as $models => $model) {
+                $sheet->setCellValue($xMN . $yMN, $model['modelName']);
+                foreach ($model['services'] as $services => $service) {
+                    $sheet->setCellValue($xSN . $ySN, $service['serviceName']);
+                    $ySN++;
+                }
+                foreach($model['services'] as $services => $service) {
+                    if ($service['servicePrice'] == 'бесплатно') {
+                        $sheet->setCellValue($xSP . $ySP, 0);
+                    }
+                    if ($service['servicePrice'] == 'по запросу') {
+                        $sheet->setCellValue($xSP . $ySP, null);
+                    } else {
+                        $sheet->setCellValue($xSP . $ySP, (int)str_replace('От ', '', str_replace('от ', '', str_replace(' руб.', '', $service['servicePrice']))));
+                    }
+                    $ySP++;
+                }
+                $yMN = $yMN + count($model['services']);
+                $yPN = $yPN + count($model['services']);
+            }
+        }
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($file);
     } else {
         // Создаем экземпляр класса Spreadsheet (новую таблицу)
         $spreadsheet = new Spreadsheet();
@@ -93,7 +127,14 @@ function writeInExcel($data, $file, $filename) {
                     $ySN++;
                 }
                 foreach($model['services'] as $services => $service) {
-                    $sheet->setCellValue($xSP . $ySP, $service['servicePrice']);
+                    if ($service['servicePrice'] == 'бесплатно') {
+                        $sheet->setCellValue($xSP . $ySP, 0);
+                    }
+                    if ($service['servicePrice'] == 'по запросу') {
+                        $sheet->setCellValue($xSP . $ySP, null);
+                    } else {
+                        $sheet->setCellValue($xSP . $ySP, (int)str_replace('От ', '', str_replace('от ', '', str_replace(' руб.', '', $service['servicePrice']))));
+                    }
                     $ySP++;
                 }
                 $yMN = $yMN + count($model['services']);
