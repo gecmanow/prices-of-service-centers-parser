@@ -1,7 +1,6 @@
 {
   "autoload": {
     "psr-4": {
-      "testshop\\": "vendor/testshop",
       "app\\": "app"
     }
   },
