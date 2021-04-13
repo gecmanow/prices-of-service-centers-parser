@@ -16,6 +16,7 @@ $data = parse($url);
 $result = writeInExcel($data, $file, $filename);
 
 
+
 /*foreach ($data as $device => $deviceName) {
     echo $deviceName['productName'];
     foreach($deviceName['models'] as $model => $modelName) {
